@@ -63,7 +63,7 @@ class SmartBot:
         if not moves:
             return p.direction
 
-        d = self._hunt(game, pid, moves, areas, mytrail)
+        d = self._hunt(game, pid, moves, areas, mytrail, margin)
         if d is not None:
             self.plan = []
             return d
@@ -141,7 +141,8 @@ class SmartBot:
         p = game.players[pid]
         inside = [d for d in moves if own[step(p.head, d)]]
         if not inside:
-            return self._go_home(game, pid, moves)
+            safe = [d for d in moves if self._safe(game, pid, step(p.head, d), 0)]
+            return self._go_home(game, pid, safe or moves)
         n = game.size
 
         def key(d):
@@ -152,7 +153,7 @@ class SmartBot:
         return min(inside, key=key)
 
     # ----------------------------------------------------------------- hunt
-    def _hunt(self, game, pid, moves, areas, mytrail):
+    def _hunt(self, game, pid, moves, areas, mytrail, margin):
         p = game.players[pid]
         dist_me = bfs(self._mask(game, [p.head]), ~mytrail, max_d=self.hunt_range)
         best = None
@@ -178,8 +179,14 @@ class SmartBot:
             hit = game.trail[c] == q.pid
             if not hit and to_trail[c] >= to_trail[p.head]:
                 continue
-            # Only chase if our own trail stays safe on the way, or the hit is now.
-            if hit or game.owner[c] == pid or self._safe(game, pid, c, 0):
+            # Only chase while our own trail stays safe: the target hunts too.
+            if hit:
+                ok = all(self.enemy_dist[x] > 1 for x in p.trail) and (
+                    game.owner[c] == pid or self.enemy_dist[c] > 1
+                )
+            else:
+                ok = self._safe(game, pid, c, margin)
+            if ok:
                 options.append((not hit, to_trail[c], self.rng.random(), d))
         return min(options)[3] if options else None
 
