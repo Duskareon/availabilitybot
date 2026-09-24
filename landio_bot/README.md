@@ -47,8 +47,15 @@ baseline styles (random walkers, paper.io-style rectangle loopers, cautious
 loopers that retreat when threatened, and hunters that chase trails). Fair
 share in a 16-player game is 1/16 ≈ 6%.
 
-See the numbers printed by the commands below. The ones measured while this
-bot was built are in the commit message.
+| Setup | Games | Smart bot wins | Survived | Avg. map share |
+|---|---|---|---|---|
+| vs 15 baseline bots | 50 | **50 (100%)** | 100% | 34.7% |
+| vs 3 copies of itself + 12 baseline bots | 40 | 7 (18%) | 98% | 12.7% |
+
+In the second setup, the four smart bots together won 38 of 40 games. Fair
+share for any one of four equal bots is 25%, and the 18% measured is within
+noise of that over 40 games. So against equally good players it is even,
+not dominant. Its edge is over weaker play.
 
 ## Run it
 
